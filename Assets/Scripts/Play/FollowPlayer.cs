@@ -5,9 +5,13 @@ using UnityEngine;
 public class FollowPlayer : MonoBehaviour
 {
 
+    public float scrollSpeed = 1;
+    public float rotateSpeed = 10;
+
     private Transform _playerTransform;
     private Vector3 _offset;
-    public float scrollSpeed = 1;
+
+    private bool _isRotating = false;
 
 
     // Use this for initialization
@@ -23,6 +27,9 @@ public class FollowPlayer : MonoBehaviour
     void Update()
     {
         transform.position = _offset + _playerTransform.position;
+       
+        UpdateRotateView();
+
         UpdateScrollView();
     }
 
@@ -40,6 +47,43 @@ public class FollowPlayer : MonoBehaviour
 
         }
 
+    }
 
+
+
+    void UpdateRotateView()
+    {
+        float moveX = Input.GetAxis("Mouse X");
+        float moveY = Input.GetAxis("Mouse Y");
+
+        if (Input.GetMouseButtonDown(1))
+        {
+            _isRotating = true;
+        }
+
+        if (Input.GetMouseButtonUp(1))
+        {
+            _isRotating = false;
+        }
+
+
+        if (_isRotating)
+        {
+            transform.RotateAround(_playerTransform.position, _playerTransform.up, rotateSpeed * moveX);
+
+            Vector3 oldPositon = transform.position;
+            Quaternion oldQuaternion = transform.rotation;
+
+            transform.RotateAround(_playerTransform.position, transform.right, rotateSpeed * moveY);
+
+            Vector3 newRotation = transform.eulerAngles;
+            if (newRotation.x < 10 || newRotation.x > 70)
+            {
+                transform.position = oldPositon;
+                transform.rotation = oldQuaternion;
+            }
+        }
+
+        _offset = transform.position - _playerTransform.position;
     }
 }
